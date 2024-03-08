@@ -1,0 +1,112 @@
+<html>
+<head>
+  <style>
+    .filter-column { flex-grow: 1 }
+    .filter-container {display: flex; flex-direction: row; padding: 1em}
+    .filter-column > div { margin-bottom: 1em }
+    .mt-1 { margin-top: 1em }
+    .p-1 { padding: 1em }
+    .my-1 { margin-top: 1em; margin-bottom: 1em }
+    .flex { display: flex }
+    .row { flex-direction: row }
+    .child-grow > * { flex-grow: 1 }
+    em { background-color: yellow }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <div style="width: 1024px; background-color: #efefef; margin: 0 auto">
+    <form id="form">
+      {% csrf_token %}
+      <div class="filter-container">
+        <div class="filter-column">
+          <div>
+            <div>Поиск по ключевым словам</div>
+            <div><input type="text" name="keywords" /></div>
+          </div>
+          <div>
+            <div>Поиск по автору</div>
+            <div><input type="text" name="author" /></div>
+          </div>
+          <div>
+            Искать:
+            <input type="radio" name="search_in" id="all" value="all" checked /> <label for="all"> везде </label>
+            <input type="radio" name="search_in" id="messages" value="messages" /> <label for="messages"> в сообщениях </label>
+            <input type="radio" name="search_in" id="topics" value="topics" /> <label for="topics"> в названиях тем </label>
+          </div>
+          <div>
+            Сортировка по времени размещение:
+            <input type="radio" name="sort" id="asc" value="asc" checked /> <label for="asc"> по возрастанию </label>
+            <input type="radio" name="sort" id="desc" value="desc" /> <label for="desc"> по убыванию </label>
+          </div>
+          <div>
+            За время:
+            <select name="time">
+              <option value="all">всё время</option>
+              <option value="year">последний год</option>
+              <option value="month">последний месяц</option>
+            </select>
+          </div>
+
+          <div> <input type="submit" value="Поиск" /></div>
+        </div>
+        <div class="filter-column">
+          <div>Искать в разделах</div>
+          <div>
+            <select name="sections" style="height: 20em" multiple>
+              {% for sub_forum in sub_forums %}
+                <optgroup label="{{ sub_forum.title }}">
+                  {% for section in sub_forum.section_set.all %}
+                    <option value="{{ section.id }}"> {{ section.title }} </option>
+                  {% endfor %}
+                </optgroup>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+      </div>
+    </form>
+    <div style="margin-top: 3em" id="results">
+      results
+    </div>
+  </div>
+</body>
+<script>
+  $(document).ready(function(){
+    $("#form").submit(function(event){
+      event.preventDefault();
+      $("#results").html("");
+
+      $.ajax({
+        url: "get-posts/",
+        type: "GET",
+        data: $(event.target).serialize(),
+        success: function(response){
+          var content = response.map((item) => (
+            `
+            <div class="mt-1 p-1">
+              <div class="flex row child-grow">
+                <div>
+                  <div><b>Тема:</b> ${item.topic__title}</div>
+                  <div><b>Опубликовано:</b> ${item.created}</div>
+                </div>
+                <div>
+                  <div><b>Раздел:</b> ${item.topic__section__title}</div>
+                  <div><b>Автор:</b> ${item.author__nickname}</div>
+                </div>
+              </div>
+              <div class="my-1"> ${item.content} </div>
+            </div>
+            `
+          )).join("");
+          $("#results").html(content);
+        },
+        error: function(xhr, status, error){
+          console.error(xhr.responseText);
+        }
+      });
+    });
+  });
+</script>
+</html>
