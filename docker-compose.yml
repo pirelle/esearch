@@ -1,0 +1,35 @@
+services:
+  back:
+    command: "bash entrypoint.sh"
+    build: .
+    env_file: docker.compose.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+          condition: service_healthy
+
+  postgres:
+    image: postgres:latest
+    container_name: ${PG_HOST}
+    hostname: ${PG_HOST}
+    env_file: docker.compose.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    healthcheck:
+      test: /usr/bin/pg_isready
+      interval: 5s
+      timeout: 10s
+      retries: 120
+
+  es:
+    image: elasticsearch:8.12.2
+    hostname: ${ELASTICSEARCH_DSL_HOSTS}
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+
+volumes:
+  postgres_data:
