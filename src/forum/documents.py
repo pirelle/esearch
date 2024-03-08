@@ -1,23 +1,7 @@
 from django_elasticsearch_dsl import Document, fields
 from django_elasticsearch_dsl.registries import registry
-from elasticsearch_dsl import analyzer, token_filter
 
 from forum.models import Post
-
-
-# html_strip = analyzer(
-#     "html_strip",
-#     tokenizer="standard",
-#     filter=[
-#         "lowercase",
-#         "stop",
-#         "snowball",
-#         "custom_stop_words",
-#     ],
-#     char_filter=["html_strip"]
-# )
-
-
 
 
 @registry.register_document
@@ -40,7 +24,6 @@ class PostDocument(Document):
         })
     })
     content = fields.TextField(
-        # analyzer="bb_tags",
         analyzer="content",
     )
 
