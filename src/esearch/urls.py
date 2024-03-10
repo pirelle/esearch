@@ -17,10 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from city.views import organization_search_view, get_organizations_view
 from forum.views import forum_search_view, get_posts_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('get-posts/', get_posts_view),
+    path('get-organizations/', get_organizations_view),
     path('', forum_search_view),
+    path('org/', organization_search_view),
 ]

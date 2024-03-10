@@ -1,0 +1,131 @@
+<html>
+<head>
+  <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&amp;apikey=<ваш API-ключ>" type="text/javascript"></script>
+  <script src="placemark.js" type="text/javascript"></script>
+  <style>
+    .filter-column { flex-grow: 1; height: 50vh }
+    .filter-container {display: flex; flex-direction: row; padding: 1em}
+    .filter-column > div { margin-bottom: 1em }
+    .mt-1 { margin-top: 1em }
+    .p-1 { padding: 1em }
+    .my-1 { margin-top: 1em; margin-bottom: 1em }
+    .flex { display: flex }
+    .row { flex-direction: row }
+    .child-grow > * { flex-grow: 1 }
+    .w50 { width: 50% }
+    #map { height: 100%; width: 100% }
+    em { background-color: yellow }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <div style="width: 1024px; background-color: #efefef; margin: 0 auto">
+    <form id="form">
+      {% csrf_token %}
+      <div class="filter-container">
+        <div class="filter-column">
+          <div>
+            <div>Поиск по ключевым словам</div>
+            <div><input type="text" name="keywords" /></div>
+          </div>
+          <div>
+            <div>В радиусе (метров)</div>
+            <div><input type="text" name="radius" /></div>
+          </div>
+          <div>
+            <div>Мои координаты (широта)</div>
+            <div><input type="text" name="lat" /></div>
+          </div>
+          <div>
+            <div>Мои координаты (долгота)</div>
+            <div><input type="text" name="lon" /></div>
+          </div>
+          <div>
+            Текущий день:
+            <select name="day_of_week">
+              <option value="1">Понедельник</option>
+              <option value="2">Вторник</option>
+              <option value="3">Среда</option>
+              <option value="4">Четверг</option>
+              <option value="5">Пятница</option>
+              <option value="6">Суббота</option>
+              <option value="7">Воскресенье</option>
+            </select>
+          </div>
+          <div>
+            <div>Текущее время</div>
+            <div><input type="text" name="time" /></div>
+          </div>
+
+          <div> <input type="submit" value="Поиск" /></div>
+        </div>
+        <div class="filter-column">
+          <div id="map">Карта</div>
+        </div>
+
+      </div>
+    </form>
+    <div style="margin-top: 3em" id="results">
+      results
+    </div>
+  </div>
+</body>
+<script>
+  $(document).ready(function(){
+    $("#form").submit(function(event){
+      event.preventDefault();
+      $("#results").html("");
+      myMap.geoObjects.removeAll();
+
+      $.ajax({
+        url: "/get-organizations/",
+        type: "GET",
+        data: $(event.target).serialize(),
+        success: function(response){
+          var content = response.map((item) => {
+            myMap.geoObjects.add(new ymaps.Placemark(item.location.reverse(), {
+              hintContent: item.title,
+              balloonContent: `${item.title}<br />${item.description}`,
+            }, {
+              preset: 'islands#icon',
+              iconColor: '#0095b6'
+            }));
+            return `
+            <li><div class="mt-1 p-1">
+              <div class="flex row">
+                <div class="w50">
+                  <div><b>Организация:</b> ${item.title}</div>
+                  <div><b>Время работы сегодня:</b> ${item.start} - ${item.finish}</div>
+                </div>
+                <div class="w50">
+                  <div><b>Описание:</b> ${item.description}</div>
+                  <div><b>Теги:</b> ${item.tags}</div>
+                </div>
+              </div>
+            </div></li>
+            `;
+          }).join("");
+          $("#results").html(`<ol type="1">${content}</ol>`);
+          myMap.setBounds(myMap.geoObjects.getBounds());
+        },
+        error: function(xhr, status, error){
+          console.error(xhr.responseText);
+        }
+      });
+    });
+  });
+
+
+var myMap;
+ymaps.ready(init);
+
+function init() {
+   myMap = new ymaps.Map("map", {
+    center: [55.76, 37.64],
+    zoom: 10
+  }, {
+    searchControlProvider: 'yandex#search'
+  })
+}
+</script>
+</html>

@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.models import Model
-from django.forms import CharField
 
 
 # Create your models here.
@@ -11,6 +10,14 @@ class Organization(Model):
     rating = models.IntegerField()
     lat = models.DecimalField(max_digits=20, decimal_places=15)
     lon = models.DecimalField(max_digits=20, decimal_places=15)
+
+    @property
+    def location(self):
+        return [self.lon, self.lat]
+
+    @property
+    def tags_indexing(self):
+        return [tag.title for tag in self.tag_set.all()]
 
     def __str__(self):
         return self.title
