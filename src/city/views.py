@@ -28,7 +28,8 @@ def get_organizations_view(request):
     if day_of_week and time:
         _hours, _minutes = time.split(":")
         minutes = int(_hours) * 60 + int(_minutes)
-        search = search.filter("range", **{f"d{day_of_week}__start": {"lte": minutes}})
+        # search = search.filter("range", **{f"d{day_of_week}__start": {"lte": minutes}})
+        search = search.filter("term", **{f"d{day_of_week}__start__lte": minutes})
         search = search.filter("range", **{f"d{day_of_week}__finish": {"gte": minutes}})
 
     if keywords:

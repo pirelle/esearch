@@ -35,11 +35,10 @@ class PostDocument(Document):
             "analysis": {
                 "analyzer": {
                     "content": {
-                        "tokenizer": "standard",
+                        "tokenizer": "lowercase",
                         "filter": [
-                            "lowercase",
-                            "stop",
-                            "snowball",
+                            "russian_snowball",
+                            "russian_stop",
                         ],
                         "char_filter": ["html_strip", "bb_tags"],
                     },
@@ -51,6 +50,17 @@ class PostDocument(Document):
                         "replacement": "",
                     }
                 },
+                "filter": {
+                    "russian_stop": {
+                        "type": "stop",
+                        "ignore_case": True,
+                        "stopwords": [ "_russian_"]
+                    },
+                    "russian_snowball": {
+                        "type": "snowball",
+                        "language": "Russian"
+                    },
+                }
             }
         }
 
