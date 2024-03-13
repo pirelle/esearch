@@ -15,7 +15,6 @@ class OrganizationDocument(Document):
     tags = fields.TextField(
         attr='tags_indexing',
         multi=True,
-        priority=2,
     )
     d1 = fields.ObjectField(properties=organization_schedule_props)
     d2 = fields.ObjectField(properties=organization_schedule_props)

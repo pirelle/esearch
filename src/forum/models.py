@@ -17,7 +17,7 @@ class SubForum(Model):
 class Section(Model):
     sub_forum = models.ForeignKey(SubForum, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
-    description = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return self.title

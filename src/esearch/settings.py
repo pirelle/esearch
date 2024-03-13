@@ -135,6 +135,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ELASTICSEARCH_DSL = {
     'default': {
-        'hosts': os.getenv("ELASTICSEARCH_DSL_HOSTS", 'http://localhost:9200')
+        'hosts': f"http://{os.getenv('ELASTICSEARCH_HOSTNAME', 'localhost')}:9200"
     },
 }

@@ -24,7 +24,7 @@ services:
 
   es:
     image: elasticsearch:8.12.2
-    hostname: ${ELASTICSEARCH_DSL_HOSTS}
+    hostname: ${ELASTICSEARCH_HOSTNAME}
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
